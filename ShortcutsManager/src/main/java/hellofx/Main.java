@@ -1,6 +1,5 @@
 package hellofx;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,11 +9,9 @@ import java.nio.file.StandardCopyOption;
 import hellofx.shortcutHelpers.WindowManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -34,17 +31,13 @@ import javafx.stage.StageStyle;
 public class Main extends Application {
     private MediaPlayer mediaPlayer;
 
-    public void playMusicOnRepeat(File file) {
-        // Create a Media object using the file path
-        if (!file.exists()) {
-            System.out.println("File not found: " + file.getName());
-            return;
+    public void playMusicOnRepeat(Media media) {
+        // Stop the current music if there is any
+        if (this.mediaPlayer != null) {
+            this.mediaPlayer.stop();
         }
 
-        // Create the Media object
-        Media media = new Media(file.toURI().toString());
-
-        // Create the MediaPlayer object
+        // Create a new MediaPlayer object with the new media
         this.mediaPlayer = new MediaPlayer(media);
 
         // Set the cycle count to indefinite so it plays on repeat
@@ -52,6 +45,13 @@ public class Main extends Application {
 
         // Play the music
         this.mediaPlayer.play();
+    }
+
+    public void stopMusic() {
+        if (this.mediaPlayer != null) {
+            this.mediaPlayer.stop();
+            this.mediaPlayer = null;
+        }
     }
 
     @Override
@@ -96,72 +96,20 @@ public class Main extends Application {
                 event.consume();
             });
 
-            ((AnchorPane) root).getChildren().get(0).setOnDragDropped(event -> {
-                // Get the file that was dropped
-                Dragboard dragboard = event.getDragboard();
-                if (dragboard.hasFiles()) {
-                    // Get the file from the drag event
-                    File file = dragboard.getFiles().get(0);
-
-                    // Create a label or icon for the dropped file
-                    Label fileIcon = new Label(file.getName());
-                    fileIcon.setStyle(
-                            "-fx-background-color: lightgray; -fx-padding: 5px; -fx-border-color: black;");
-                    fileIcon.setLayoutX(event.getX());
-                    fileIcon.setLayoutY(event.getY());
-                    fileIcon.setOnMousePressed(e -> {
-                        fileIcon.setUserData(new Point2D(e.getX(), e.getY()));
-                    });
-
-                    fileIcon.setOnMouseDragged(e -> {
-                        Point2D offset = (Point2D) fileIcon.getUserData();
-                        fileIcon.setLayoutX(e.getSceneX() - offset.getX());
-                        fileIcon.setLayoutY(e.getSceneY() - offset.getY());
-                    });
-
-                    // Optional: store file reference if you want to open it later
-                    fileIcon.setOnMouseClicked(e -> {
-                        try {
-                            if (e.getClickCount() == 2) {
-                                Desktop.getDesktop().open(file);
-                            }
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                    });
-
-                    // Add the visual element to the AnchorPane
-                    ((AnchorPane) root).getChildren().add(fileIcon);
-
-                    // Get the user directory (current working directory)
-                    String userDir = Shell32.getDesktopPath();
-
-                    // Create the destination path
-                    Path destinationPath = new File(userDir, file.getName()).toPath();
-
-                    try {
-                        // Copy the file to the destination
-                        Files.copy(file.toPath(), destinationPath,
-                                StandardCopyOption.REPLACE_EXISTING);
-                        System.out.println("File copied to: " + destinationPath);
-
-                        // Add the visual element to the AnchorPane
-                        ((AnchorPane) root).getChildren().add(fileIcon);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        System.out.println("Error copying file.");
-                    }
-                }
-                event.setDropCompleted(true);
-                event.consume();
-            });
-
         }
 
-        File musicFile = new File("resources\\music.mp3");
-        if (musicFile.exists()) {
-            this.playMusicOnRepeat(musicFile);
+        File newMusicFile = new File("resources\\new_music.mp3");
+
+        if (newMusicFile.exists()) {
+            // Create a new Media object from the new file
+            Media newMusic = new Media(newMusicFile.toURI().toString());
+
+            // Play the new music on repeat
+            this.playMusicOnRepeat(newMusic);
+        } else {
+            System.out.println("New music file not found: " + newMusicFile.getName());
         }
+
         Scene scene = new Scene(root, 400, 300, Color.TRANSPARENT);
 
         primaryStage.setScene(scene);
@@ -178,6 +126,35 @@ public class Main extends Application {
                     this.mediaPlayer.play();
                 }
             }
+        });
+
+        root.setOnDragDropped(event -> {
+            // Get the file that was dropped
+            Dragboard dragboard = event.getDragboard();
+            if (dragboard.hasFiles()) {
+                // Get the file from the drag event
+                File file = dragboard.getFiles().get(0);
+
+                // Get the user directory (current working directory)
+                String userDir = Shell32.getDesktopPath();
+
+                // Create the destination path
+                Path destinationPath = new File(userDir, file.getName()).toPath();
+
+                try {
+                    // Copy the file to the destination
+                    Files.copy(file.toPath(), destinationPath,
+                            StandardCopyOption.REPLACE_EXISTING);
+                    System.out.println("File copied to: " + destinationPath);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.out.println("Error copying file.");
+                }
+            }
+            event.setDropCompleted(true);
+            Shortcuts.refresh(scene);
+            event.consume();
         });
 
     }

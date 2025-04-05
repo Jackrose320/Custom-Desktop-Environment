@@ -25,61 +25,8 @@ public class Shortcuts {
     final static double verticalSpacing = 10.0; // Space between buttons vertically
     final static double horizontalSpacing = 10.0; // Space between buttons horizontally
 
-    public static void addNewFile(File file, AnchorPane back) {
-        Image img = IconPath
-                .convertSwingIconToJavaFX(IconPath.getSwingIcon(file.getAbsolutePath()));
-        ImageView imageView = new ImageView(img);
-
-        String fileName = file.getName();
-        fileName = removeFileExtension(fileName);
-
-        if (fileName.length() > 14) { // "MICROSOFT EDGE" = 14
-            fileName = fileName.substring(0, 14) + "...";
-        }
-
-        Label label = new Label(fileName);
-        label.setStyle("-fx-text-fill: white;");
-        label.setOpacity(0.5);
-
-        VBox vbox = new VBox(5, imageView, label);
-        vbox.setStyle("-fx-alignment: center;");
-
-        Button button = new Button();
-        button.setGraphic(vbox);
-        button.setPrefWidth(buttonWidth);
-        button.setPrefHeight(buttonHeight);
-        button.getStyleClass().setAll("shortcut");
-        draggableButton(back, button);
-
-        button.setOnMouseClicked(event -> {
-            // Remove "selected" from all buttons
-            for (Node node : back.getChildren()) {
-                if (node instanceof Button) {
-                    node.getStyleClass().remove("selected");
-                }
-            }
-            // Check if it was a double-click
-            if (event.getClickCount() == 2) {
-                try {
-                    // Check if the file exists
-                    if (file.exists()) {
-                        // Use Desktop to open the file with the default application
-                        Desktop.getDesktop().open(file);
-                    } else {
-                        System.out.println("File not found: " + file.getAbsolutePath());
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    System.out.println("Error opening file: " + e.getMessage());
-                }
-            }
-
-            // Add "selected" class to the clicked button
-            button.getStyleClass().add("selected");
-            event.consume(); // Prevent further event propagation
-        });
-        back.getChildren().add(button);
-        back.layout();
+    public static void refresh(Scene scene) {
+        showShortcuts(scene);
     }
 
     public static void draggableButton(AnchorPane back, Button button) {
@@ -111,20 +58,23 @@ public class Shortcuts {
             double newX = initialButtonX[0] + deltaX;
             double newY = initialButtonY[0] + deltaY;
 
-            // Ensure the button doesn't go out of bounds of the AnchorPane (optional)
+            // Get the height of the AnchorPane (container)
+            AnchorPane parentPane = (AnchorPane) button.getParent();
+            double paneHeight = parentPane.getHeight();
+
+            // Get the height of the button
+            double buttonHeight = button.getHeight();
+
+            // Ensure the button doesn't go out of bounds of the AnchorPane
             newX = Math.max(0, newX); // Prevent from going off the left
             newY = Math.max(0, newY); // Prevent from going off the top
+
+            // Prevent the button from going past the right and bottom bounds
+            newY = Math.min(paneHeight - buttonHeight, newY); // Prevent from going off the bottom
 
             // Set the new position of the button
             AnchorPane.setLeftAnchor(button, newX);
             AnchorPane.setTopAnchor(button, newY);
-        });
-
-        // Optional: You could add a mouse release event to finalize or adjust the position
-        button.setOnMouseReleased(event -> {
-            // Handle releasing the button (e.g., snapping to grid, or just finalize position)
-            // This is a good place to implement logic like snapping the button back into place,
-            // saving its position, etc. If you don't need to do anything here, you can leave it empty.
         });
     }
 

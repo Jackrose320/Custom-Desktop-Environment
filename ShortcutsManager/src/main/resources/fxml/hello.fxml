@@ -9,7 +9,7 @@
 
 <AnchorPane prefHeight="387.0" prefWidth="600.0" styleClass="bg" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hellofx.Controller">
    <children>
-      <AnchorPane prefHeight="333.0" prefWidth="600.0" />
+      <AnchorPane minHeight="326.0" minWidth="600.0" prefHeight="326.0" prefWidth="600.0" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <HBox fx:id="buttons" alignment="CENTER_LEFT" layoutY="330.0" prefHeight="57.0" prefWidth="600.0" styleClass="toolbar" stylesheets="@../css/style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
             <Button mnemonicParsing="false">
