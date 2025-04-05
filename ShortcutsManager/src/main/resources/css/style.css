@@ -1,0 +1,35 @@
+.bg {
+ /* -fx-background-color: rgba(100,75,79,1);*/ 
+}
+.toolbar {
+  -fx-background-color: linear-gradient(pink, skyblue);
+}
+.tool_icon {
+    -fx-effect: dropshadow(gaussian, skyblue, 6, 0, 2, 2);
+}
+.button {
+  -fx-background-color: transparent;
+}
+.button:hover {
+    -fx-effect: dropshadow(gaussian, pink, 10, 0.5, 0.0, 0.0);
+}
+.button:pressed {
+    -fx-background-color: linear-gradient(darkblue, navy); /* Darker color to show it's pressed */
+    -fx-text-fill: white; /* Change text color for contrast */
+}
+.bgupload {
+    -fx-background-color: royalblue;
+    -fx-background-radius: 50;
+    -fx-effect: dropshadow(gaussian, pink, 10, 0.5, 0.0, 0.0);
+}
+
+.shortcut {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+}
+.shortcut:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+}
+.selected {
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+}
